@@ -2,6 +2,9 @@ from __future__ import print_function
 import pickle
 import os.path
 import json
+from pprint import pprint
+import numpy as np
+import datetime
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -9,23 +12,39 @@ from google.auth.transport.requests import Request
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
+def analyze_data(values):
+    titles = values[0]
+    rows = np.array(values[1:])
+
+    # get the columns
+    dates = rows[:,0]
+    bsup = rows[:,1].astype(np.int)
+    scis = rows[:,2].astype(np.int)
+    pprint(dates)
+    pprint(bsup)
+    pprint(scis)
+
+
+
 def read_data(service, sheetId):
-    range_names = []
-    result = service.spreadsheets().values.batchGet(spreadsheetId=sheetId, ranges=range_names).execute()
-    dates = result["valueRanges"][0]
-    seconds = result["valueRanges"[1]
-    pass
+    result = service.spreadsheets().values().get( \
+                spreadsheetId=sheetId, \
+                range="A1:C30" \
+             ).execute()
+    return result['values']
 
 def load_config():
     with open('config.json','r') as cfg:
         data = json.load(cfg)
     return data
 
+
 def use_service(service):
     # load config file
     config = load_config()
-    sheetId = config.sheetId
-    read_data(service, sheetId)
+    sheetId = config['sheetId']
+    values = read_data(service, sheetId)
+    analyze_data(values)
 
 
 def main():
