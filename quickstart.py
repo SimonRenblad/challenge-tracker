@@ -4,7 +4,8 @@ import os.path
 import json
 from pprint import pprint
 import numpy as np
-import datetime
+from datetime import datetime
+import matplotlib.pyplot as plt
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -18,11 +19,21 @@ def analyze_data(values):
 
     # get the columns
     dates = rows[:,0]
+    new_dates = []
+
+    # convert dates to date_time
+    for date in dates:
+        dt = np.datetime64(datetime.strptime(date, '%d/%m/%Y').date())
+        new_dates.append(dt)
+
+    dates = np.array(new_dates)
     bsup = rows[:,1].astype(np.int)
     scis = rows[:,2].astype(np.int)
-    pprint(dates)
-    pprint(bsup)
-    pprint(scis)
+    plt.plot_date(dates, bsup)
+    plt.plot_date(dates, scis)
+    plt.ylabel("seconds")
+    plt.title("Challenge Tracker")
+    plt.show()
 
 
 
